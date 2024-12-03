@@ -1,12 +1,17 @@
 import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import Home from './pages/Home';
 
 const App: React.FC = () => {
 
   return (
-    <h1 className='text-3xl font-bold text-purple-400'>
-      Initial ToDo App Created with basic setup
-    </h1>
-  )
+		<Provider store={store}>
+			<div className='flex flex-col min-h-screen bg-gray-100'>
+				<Home />
+			</div>
+		</Provider>
+	);
 };
 
 export default App;

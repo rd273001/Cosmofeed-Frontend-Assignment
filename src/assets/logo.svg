@@ -1,0 +1,21 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="100"
+    height="100"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="feather feather-check-square">
+    <rect stroke-width="0.5" fill="blueviolet" x="0" y="0" width="24" height="24" rx="3" ry="3" />
+    <text x="50%" y="4.5" alignment-baseline="middle" font-family="Arial" font-size="5" text-anchor="middle" stroke-width="0.3" stroke="white" fill="white">TO DO</text>
+
+    <rect stroke="indigo" stroke-width="0.2" fill="white" x="2" y="7" width="20" height="15" rx="1" ry="1" />
+    <polyline stroke="#16a34a" stroke-width="0.5" points="7 9.5 4.5 11.5 4 11" />
+    <line stroke="lightgray" stroke-width="1" x1="9" y1="10.5" x2="19" y2="10.5" />
+    <polyline stroke="#16a34a" stroke-width="0.5" points="7 13.5 4.5 15.5 4 15" />
+    <line stroke="lightgray" stroke-width="1" x1="9" y1="14.5" x2="17" y2="14.5" />
+    <polyline stroke="#16a34a" stroke-width="0.5" points="7 17.5 4.5 19.5 4 19" />
+    <line stroke="lightgray" stroke-width="1" x1="9" y1="18.5" x2="18" y2="18.5" />
+
+</svg>
