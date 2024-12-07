@@ -15,8 +15,8 @@ const Modal:React.FC<ModalProps> = ( { onClose, keysToClose = [ 'Escape' ], chil
   useEventToCloseModal( { ref: modalContentRef, onClose, keysToClose } );
 
   return (
-    <div className='fixed inset-0 bg-black/65 backdrop-blur-[2px] flex items-center justify-center'>
-      <div ref={ modalContentRef } className='w-full m-4 md:w-auto bg-white p-4 rounded-xl' { ...props }>
+    <div className='fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-[2px] flex items-center justify-center'>
+      <div ref={ modalContentRef } className='w-full m-4 md:w-auto bg-white p-4 rounded-xl overflow-y-auto max-h-[90%]' { ...props }>
         { children }
       </div>
     </div>

@@ -15,7 +15,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.1.2",
-    "todo-app": "file:"
+    "todo-app": "file:",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

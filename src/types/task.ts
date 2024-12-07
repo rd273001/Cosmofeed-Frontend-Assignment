@@ -5,8 +5,10 @@ export interface Task {
   description: string;
   createdAt: number; // timestamp
   dueDate?: number; // optional timestamp
-  priority: 'None' | 'Low' | 'Medium' | 'High';
+  priority: TaskPriority;
 }
+
+export type TaskPriority = 'None' | 'Low' | 'Medium' | 'High';
 
 export interface TaskState {
   tasks: Task[];
