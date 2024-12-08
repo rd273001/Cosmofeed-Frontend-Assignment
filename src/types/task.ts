@@ -16,4 +16,6 @@ export interface TaskState {
   sortColumn: string | null;
   sortDirection: 'asc' | 'desc';
   groupBy: string | null;
+  loading?: boolean;
+  selectedTask: Task | null;
 }

@@ -1,19 +1,18 @@
 import { PlusIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react'
-import { Task } from '../types/task';
-import Header from '../components/Header';
-import Modal from '../components/Modal';
 import AddTaskForm from '../components/AddTaskForm';
 import useTaskActionHandlers from '../hooks/useTaskActionHandlers';
 import TaskTabs from '../components/TaskTabs';
 import TaskList from '../components/TaskList';
+import useModalVisibilityHandlers from '../hooks/useModalVisibilityHanlders';
+import { Task } from '../types/task';
+import Spinner from '../components/Spinner';
 
 const Home: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'completed' | 'pending'>( 'all' );
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState( false );
-  const [selectedTask, setSelectedTask] = useState<Task | null>( null );
 
-  const { tasks, handleAddTask, handleUpdateTask, } = useTaskActionHandlers();
+  const { tasks, handleAddTask, selectedTask, handleSelectedTask, handleUpdateTask, handleDeleteTask, loading, handleToggleTaskState } = useTaskActionHandlers();
+  const { isAddTaskModalVisible, handleToggleModalVisibility } = useModalVisibilityHandlers();
 
   // Filter tasks based on active tab
   const filteredTasks = useMemo( () => {
@@ -24,53 +23,32 @@ const Home: React.FC = () => {
     } );
   }, [tasks, activeTab] );
 
-  const openTaskModal = ( task?: Task ) => {
-    setSelectedTask( task || null );
-    setIsTaskModalOpen( true );
-  };
-
-  const closeTaskModal = () => {
-    setSelectedTask( null );
-    setIsTaskModalOpen( false );
-  };
-
-  const handleSaveTask = ( task: Omit<Task, 'id' | 'currentState' | 'createdAt'> ) => {
-    if ( selectedTask ) {
-      // Update existing task
-      handleUpdateTask( { ...selectedTask, ...task } );
-    } else {
-      // Add new task
-      handleAddTask( task );
-    }
-    closeTaskModal();
-  };
-
   return (
-    <div className='flex flex-col flex-1'>
-      <Header />
-      <div className='container mx-auto'>
-        <div className='p-4'>
-          {/* TODO - Search & Group By Dropdown */ }
+    <div className='container mx-auto'>
+      <div className='p-4'>
+        {/* TODO - Search & Group By Dropdown */ }
 
-          <TaskTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
+        <TaskTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
 
-          <TaskList tasks={ filteredTasks } />
-
-          {/* Add Task Button */ }
-
-          <button
-            onClick={ () => openTaskModal() }
-            className='fixed bottom-6 right-6 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-black/50 animate-bounce hover:animate-none bg-gradient-to-tr from-purple-800 to-blue-300 hover:opacity-75 active:scale-110 transition-colors'
-          >
-            <PlusIcon />
-          </button>
-
-          { isTaskModalOpen && <Modal
-            onClose={ () => setIsTaskModalOpen( false ) }
-            children={ <AddTaskForm onSave={ handleSaveTask } onClose={ closeTaskModal } /> }
+        <TaskList
+          tasks={ filteredTasks }
+          onUpdateTask={ handleUpdateTask }
+          onDeleteTask={ handleDeleteTask }
+          onToggleTaskState={ handleToggleTaskState }
+          onModalOpen={ handleToggleModalVisibility }
+          selectedTask={ selectedTask as Task }
+          setSelectedTask={ handleSelectedTask }
           />
-          }
-        </div>
+
+        <button
+          onClick={ () => handleToggleModalVisibility( 'AddTask' ) }
+          className='fixed bottom-[6%] right-[3.5%] text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-black/50 animate-[bounce_infinite_1.5s_ease-in-out] hover:animate-none bg-gradient-to-tr from-purple-800 to-blue-300 hover:opacity-75 active:scale-110'
+        >
+          <PlusIcon />
+        </button>
+
+        { isAddTaskModalVisible && <AddTaskForm modalType='AddTask' onSave={ handleAddTask } /> }
+        { loading && <Spinner /> }
       </div>
     </div>
   )

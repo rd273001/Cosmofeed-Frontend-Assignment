@@ -7,7 +7,9 @@ const initialState: TaskState = {
   searchTerm: '',
   sortColumn: null,
   sortDirection: 'asc',
-  groupBy: null
+  groupBy: null,
+  loading: false,
+  selectedTask: null,
 };
 
 const taskSlice = createSlice( {
@@ -23,21 +25,36 @@ const taskSlice = createSlice( {
     setSearchTerm: ( state, action ) => {
       state.searchTerm = action.payload;
     },
+    setSelectedTask: ( state, action ) => {
+      state.selectedTask = action.payload;
+    }
   },
   extraReducers: ( builder ) => {
     builder
+      .addCase( addTask.pending, ( state ) => {
+        state.loading = true;
+      } )
       .addCase( addTask.fulfilled, ( state, action ) => {
         // Add new task to the beginning of the list
         state.tasks.unshift( action.payload );
+        state.loading = false;
+      } )
+      .addCase( updateTask.pending, ( state ) => {
+        state.loading = true;
       } )
       .addCase( updateTask.fulfilled, ( state, action ) => {
         const index = state.tasks.findIndex( t => t.id === action.payload.id );
         if ( index !== -1 ) {
           state.tasks[index] = action.payload;
         }
+        state.loading = false;
+      } )
+      .addCase( deleteTask.pending, ( state ) => {
+        state.loading = true;
       } )
       .addCase( deleteTask.fulfilled, ( state, action ) => {
         state.tasks = state.tasks.filter( t => t.id !== action.payload );
+        state.loading = false;
       } );
   }
 } );
@@ -45,6 +62,7 @@ const taskSlice = createSlice( {
 export const {
   setSearchTerm,
   toggleTaskState,
+  setSelectedTask,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+button {
+  @apply active:scale-110 text-white
+}
+
+input {
+  @apply focus:border-purple-400 outline-none
+}
