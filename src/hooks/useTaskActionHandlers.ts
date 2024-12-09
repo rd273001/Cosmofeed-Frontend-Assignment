@@ -3,46 +3,82 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store/store';
 import { Task } from '../types/task';
 import { addTask, deleteTask, updateTask } from '../store/task/asyncThunks';
-import { setSearchTerm, setSelectedTask, toggleTaskState } from '../store/task/taskSlice';
-import { ModalType } from '../types/modal';
+import { setSelectedTask, toggleTaskState, setSearchText, setGroupBy, setSorting } from '../store/task/taskSlice';
+import { toggleModalVisibility } from '../store/modal/modalSlice';
 
 
 const useTaskActionHandlers = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { tasks, searchTerm, loading, selectedTask } = useSelector( ( state: RootState ) => state.tasks );
+  const { tasks, loading, selectedTask, searchText, sortColumn, sortDirection, groupBy } = useSelector( ( state: RootState ) => state.tasks );
 
   const filteredAndSortedTasks = useMemo( () => {
     let processedTasks = [...tasks];
 
     // Search filtering
-    if ( searchTerm ) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
+    if ( searchText ) {
+      const lowerSearchTerm = searchText.toLowerCase();
       processedTasks = processedTasks.filter( task =>
         task.title.toLowerCase().includes( lowerSearchTerm ) ||
         task.description.toLowerCase().includes( lowerSearchTerm )
       );
     }
 
-    // TO DO - Sorting
+    // Sorting
+    if ( sortColumn ) {
+      processedTasks.sort( ( a, b ) => {
+        const valueA = a[sortColumn as keyof Task] as any;
+        const valueB = b[sortColumn as keyof Task] as any;
 
-    // TO DO - Group By
+        if ( valueA === undefined || valueB === undefined ) return 0;
+
+        if ( typeof valueA === 'string' && typeof valueB === 'string' ) {
+          return sortDirection === 'asc'
+            ? valueA.localeCompare( valueB )
+            : valueB.localeCompare( valueA );
+        }
+
+        // For date and numeric comparisons
+        if ( valueA instanceof Date && valueB instanceof Date ) {
+          return sortDirection === 'asc'
+            ? valueA.getTime() - valueB.getTime()
+            : valueB.getTime() - valueA.getTime();
+        }
+
+        return sortDirection === 'asc'
+          ? valueA - valueB
+          : valueB - valueA;
+      } );
+    }
+
+    // Grouping
+    if ( groupBy ) {
+      const groupMap: Record<string, Task[]> = {};
+      processedTasks.forEach( task => {
+        const groupKey = task[groupBy as keyof Task]?.toString() || 'Ungrouped';
+        if ( !groupMap[groupKey] ) {
+          groupMap[groupKey] = [];
+        }
+        groupMap[groupKey].push( task );
+      } );
+      return Object.values( groupMap );
+    }
 
     return processedTasks;
-  }, [tasks, searchTerm] );
+  }, [tasks, searchText, sortColumn, sortDirection, groupBy] );
 
-  const handleAddTask = useCallback( ( task: Omit<Task, 'id' | 'currentState' | 'createdAt'>, onClose?: ( modalType: ModalType ) => void ) => {
+  const handleAddTask = useCallback( ( task: Omit<Task, 'id' | 'currentState' | 'createdAt'> ) => {
     dispatch( addTask( task ) );
-    onClose?.( 'AddTask' );
+    dispatch( toggleModalVisibility( 'AddTask' ) );
   }, [dispatch] );
 
-  const handleUpdateTask = useCallback( ( task: Task, onClose?: ( modalType: ModalType ) => void ) => {
+  const handleUpdateTask = useCallback( ( task: Task ) => {
     dispatch( updateTask( task ) );
-    onClose?.( 'EditTask' );
+    dispatch( toggleModalVisibility( 'EditTask' ) );
   }, [dispatch] );
 
-  const handleDeleteTask = useCallback( ( taskId: string, onClose?: ( modalType: ModalType ) => void ) => {
+  const handleDeleteTask = useCallback( ( taskId: string ) => {
     dispatch( deleteTask( taskId ) );
-    onClose?.( 'ConfirmDelete' );
+    dispatch( toggleModalVisibility( 'ConfirmDelete' ) );
   }, [dispatch] );
 
   const handleSelectedTask = useCallback( ( task: Task ) => {
@@ -53,8 +89,16 @@ const useTaskActionHandlers = () => {
     dispatch( toggleTaskState( taskId ) );
   }, [dispatch] );
 
-  const handleSearchTasks = useCallback( ( term: string ) => {
-    dispatch( setSearchTerm( term ) );
+  const handleSearchTasks = useCallback( ( text: string ) => {
+    dispatch( setSearchText( text ) );
+  }, [dispatch] );
+
+  const handleSortColumn = useCallback( ( column: string ) => {
+    dispatch( setSorting( column ) );
+  }, [dispatch] );
+
+  const handleSelectGroupBy = useCallback( ( selectedValue: string ) => {
+    dispatch( setGroupBy( selectedValue === 'None' ? null : selectedValue ) );
   }, [dispatch] );
 
   return {
@@ -67,6 +111,12 @@ const useTaskActionHandlers = () => {
     handleSelectedTask,
     handleToggleTaskState,
     handleSearchTasks,
+    searchText,
+    sortColumn,
+    sortDirection,
+    handleSortColumn,
+    groupBy,
+    handleSelectGroupBy,
   };
 };
 

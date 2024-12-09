@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TaskState } from '../../types/task';
+import { Task, TaskState } from '../../types/task';
 import { addTask, deleteTask, updateTask } from './asyncThunks';
 
 const initialState: TaskState = {
   tasks: [],
-  searchTerm: '',
+  searchText: '',
   sortColumn: null,
   sortDirection: 'asc',
   groupBy: null,
@@ -22,12 +22,25 @@ const taskSlice = createSlice( {
         task.currentState = !task.currentState;
       }
     },
-    setSearchTerm: ( state, action ) => {
-      state.searchTerm = action.payload;
+    setSearchText: ( state, action: PayloadAction<string> ) => {
+      state.searchText = action.payload;
     },
-    setSelectedTask: ( state, action ) => {
+    setSelectedTask: ( state, action: PayloadAction<Task> ) => {
       state.selectedTask = action.payload;
-    }
+    },
+    setSorting: ( state, action: PayloadAction<string> ) => {
+      // If clicking the same column, toggle direction
+      if ( state.sortColumn === action.payload ) {
+        state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        // New column, default to ascending
+        state.sortColumn = action.payload;
+        state.sortDirection = 'asc';
+      }
+    },
+    setGroupBy: ( state, action: PayloadAction<string | null> ) => {
+      state.groupBy = action.payload;
+    },
   },
   extraReducers: ( builder ) => {
     builder
@@ -60,9 +73,11 @@ const taskSlice = createSlice( {
 } );
 
 export const {
-  setSearchTerm,
+  setSearchText,
   toggleTaskState,
   setSelectedTask,
+  setSorting,
+  setGroupBy,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

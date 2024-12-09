@@ -12,7 +12,7 @@ export type TaskPriority = 'None' | 'Low' | 'Medium' | 'High';
 
 export interface TaskState {
   tasks: Task[];
-  searchTerm: string;
+  searchText: string;
   sortColumn: string | null;
   sortDirection: 'asc' | 'desc';
   groupBy: string | null;

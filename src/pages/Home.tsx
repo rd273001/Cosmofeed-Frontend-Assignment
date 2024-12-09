@@ -5,18 +5,18 @@ import useTaskActionHandlers from '../hooks/useTaskActionHandlers';
 import TaskTabs from '../components/TaskTabs';
 import TaskList from '../components/TaskList';
 import useModalVisibilityHandlers from '../hooks/useModalVisibilityHanlders';
-import { Task } from '../types/task';
 import Spinner from '../components/Spinner';
+import { Task } from '../types/task';
 
 const Home: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'completed' | 'pending'>( 'all' );
 
-  const { tasks, handleAddTask, selectedTask, handleSelectedTask, handleUpdateTask, handleDeleteTask, loading, handleToggleTaskState } = useTaskActionHandlers();
+  const { tasks, handleAddTask, loading, } = useTaskActionHandlers();
   const { isAddTaskModalVisible, handleToggleModalVisibility } = useModalVisibilityHandlers();
 
   // Filter tasks based on active tab
   const filteredTasks = useMemo( () => {
-    return tasks.filter( task => {
+    return ( tasks as Task[] ).filter( ( task ) => {
       if ( activeTab === 'all' ) return true;
       if ( activeTab === 'completed' ) return task.currentState;
       return !task.currentState;
@@ -29,16 +29,7 @@ const Home: React.FC = () => {
         {/* TODO - Search & Group By Dropdown */ }
 
         <TaskTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
-
-        <TaskList
-          tasks={ filteredTasks }
-          onUpdateTask={ handleUpdateTask }
-          onDeleteTask={ handleDeleteTask }
-          onToggleTaskState={ handleToggleTaskState }
-          onModalOpen={ handleToggleModalVisibility }
-          selectedTask={ selectedTask as Task }
-          setSelectedTask={ handleSelectedTask }
-          />
+        <TaskList tasks={ filteredTasks } />
 
         <button
           onClick={ () => handleToggleModalVisibility( 'AddTask' ) }

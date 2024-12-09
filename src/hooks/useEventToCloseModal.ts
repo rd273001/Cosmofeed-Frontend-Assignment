@@ -1,5 +1,5 @@
 import React from 'react';
-import useEvent from './useEvent';
+import useEventListener from './useEventListener';
 
 interface UseEventToCloseModalProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -24,10 +24,10 @@ const useEventToCloseModal = ( { ref, onClose, keysToClose = ['Escape'] }: UseEv
   };
 
   // Custom hook for taps/clicks/presses outside dialog area
-  useEvent( { eventType: 'mousedown', eventHandler: handleClickOutside } );
+  useEventListener( { eventType: 'mousedown', eventHandler: handleClickOutside } );
 
   // Custom hook for keyboard events
-  useEvent( { eventType: 'keydown', eventHandler: handleKeyDown } );
+  useEventListener( { eventType: 'keydown', eventHandler: handleKeyDown } );
 };
 
 export default useEventToCloseModal;

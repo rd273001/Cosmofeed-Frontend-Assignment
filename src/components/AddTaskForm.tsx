@@ -4,11 +4,11 @@ import { PRIORITY_OPTIONS } from '../config/taskConfig';
 import Modal from './Modal';
 import { ModalType } from '../types/modal';
 import useModalVisibilityHandlers from '../hooks/useModalVisibilityHanlders';
+import useTaskActionHandlers from '../hooks/useTaskActionHandlers';
 
 interface AddTaskFormProps {
   modalType: ModalType;
-  onSave?: ( task: Omit<Task, 'id' | 'currentState' | 'createdAt'> | Task, onClose?: ( modalType: ModalType ) => void ) => void;
-  onUpdate?: ( task: Task, onClose?: ( modalType: ModalType ) => void ) => void;
+  onSave?: ( task: Omit<Task, 'id' | 'currentState' | 'createdAt'> | Task ) => void;
   initialTask?: Task;
 }
 
@@ -49,7 +49,7 @@ const renderSelect = ( value: string, options: string[], setPriority: ( priority
   );
 };
 
-const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, onSave, onUpdate, initialTask } ) => {
+const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, initialTask } ) => {
   const [title, setTitle] = useState( initialTask?.title ?? '' );
   const [description, setDescription] = useState( initialTask?.description ?? '' );
   const [priority, setPriority] = useState( initialTask?.priority ?? 'None' );
@@ -60,9 +60,10 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, onSave, onUpdate,
   );
 
   const { handleToggleModalVisibility } = useModalVisibilityHandlers();
+  const { handleUpdateTask, handleAddTask } = useTaskActionHandlers();
 
   const handleSave = () => {
-    if ( modalType === 'ViewTask' ) return;   // return if in read-only mode
+    if ( modalType === 'ViewTask' ) return;   // return if in READ-ONLY mode
 
     if ( title.trim().length < 10 || title.trim().length > 140 ) {
       alert( 'Title must be between 10 and 140 characters' );
@@ -82,10 +83,9 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, onSave, onUpdate,
       dueDate: dueDate ? new Date( dueDate ).getTime() : initialTask?.dueDate,
     };
 
-    if ( initialTask ) onUpdate?.( taskData as Task );   // update existing task
-    else onSave?.( taskData );   // update or add task
+    if ( initialTask ) handleUpdateTask( taskData as Task );  // update existing task
 
-    handleToggleModalVisibility( modalType );   // close modal after saving data
+    else handleAddTask( taskData );   // update or add task
   };
 
   return (

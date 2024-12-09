@@ -34,7 +34,7 @@ const ConfirmBeforeActionAlert: React.FC<ConfirmBeforeActionAlertProps> = ( {
     },
     cancel: {
       title: 'Confirm Cancel',
-      defaultMessage: 'You have unsaved changes. Are you sure you want to leave?',
+      defaultMessage: 'You have unsaved changes. Are you sure you want to discard the changes?',
       confirmButtonText: 'Discard',
       confirmButtonClasses: 'bg-red-500 hover:bg-red-600',
     },
