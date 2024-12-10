@@ -11,22 +11,23 @@ interface TaskListProps {
   tasks: Task[] | Task[][];
 }
 
-const renderTaskList = ( tasks: Task[] | Task[][] ) => {
+const renderTaskList = ( tasks: Task[] | Task[][], groupBy: string ) => {
   // Check if tasks is grouped (2D array)
-  if ( Array.isArray( tasks[0] ) && tasks[0] instanceof Array ) {
+  if ( groupBy ) {
     return ( tasks as Task[][] ).map( ( group, index ) => (
       <Fragment key={ index }>
         { group.length > 0 && (
-          <tr className='bg-gray-100 font-bold'>
-            <td colSpan={ 5 } className='p-2 border'>
+          <tr className='bg-gray-200 font-semibold'>
+            <td colSpan={ 5 } className='p-2 border border-gray-300'>
               {/* Dynamic group header based on groupBy value */ }
-              { group.length > 0 && group[0].priority ?
-                group[0].priority :
-                group.length > 0 && group[0].createdAt ?
+              { group.length > 0 ?
+                groupBy === 'createdAt' && group[0].createdAt ?
                   new Date( group[0].createdAt ).toLocaleDateString() :
-                  group.length > 0 && group[0].dueDate ?
-                    new Date( group[0].dueDate ).toLocaleDateString() :
-                    'None'
+                  groupBy === 'dueDate' ?
+                    Object.keys( group[0] ).includes( 'dueDate' ) && group[0].dueDate ?
+                      new Date( group[0].dueDate ).toLocaleDateString() : 'No Due Date' :
+                    groupBy === 'priority' && group[0].priority :
+                'None'
               }
             </td>
           </tr>
@@ -42,7 +43,7 @@ const renderTaskList = ( tasks: Task[] | Task[][] ) => {
 
 const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
   const { isViewTaskModalVisible, isEditModalVisible, isConfirmDeleteModalVisible, handleToggleModalVisibility } = useModalVisibilityHandlers();
-  const { selectedTask, handleDeleteTask } = useTaskActionHandlers();
+  const { selectedTask, handleDeleteTask, groupBy } = useTaskActionHandlers();
 
   return (
     <div>
@@ -50,7 +51,7 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
         <table className='w-full border-collapse'>
           <TaskListTableHeader />
           <tbody>
-            { renderTaskList( tasks ) }
+            { renderTaskList( tasks, groupBy as string ) }
           </tbody>
         </table>
       ) : (

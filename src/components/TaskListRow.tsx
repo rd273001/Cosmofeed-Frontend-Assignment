@@ -36,20 +36,20 @@ const TaskListRow: React.FC<TaskListRowProps> = ( { task } ) => {
 
   return (
     <tr
-      className={ `${task.currentState ? 'bg-green-100 line-through' : ''} hover:bg-gray-100 cursor-pointer` }
+      className={ `hover:bg-gray-200 ${task.currentState ? 'bg-green-200 hover:bg-green-300 line-through' : ''} cursor-pointer` }
       onClick={ () => handleOpenModal( 'ViewTask', task ) }
     >
-      <td className='p-2 border'><HighlightText wholeText={ task.title } highlightText={ searchText } /></td>
-      <td className='p-2 border'>{ task.priority }</td>
-      <td className='p-2 border'>
+      <td className='p-2 border border-gray-300'><HighlightText wholeText={ task.title } highlightText={ searchText } /></td>
+      <td className='p-2 border border-gray-300'>{ task.priority }</td>
+      <td className='p-2 border border-gray-300'>
         { new Date( task.createdAt ).toLocaleDateString() }
       </td>
-      <td className='p-2 border'>
+      <td className='p-2 border border-gray-300'>
         { task.dueDate
           ? new Date( task.dueDate ).toLocaleDateString()
           : 'No due date' }
       </td>
-      <td className='p-2 border'>
+      <td className='p-2 border border-gray-300'>
         <div className='flex justify-center lg:gap-6 md:gap-4 gap-4 text-sm'>
           <button
             onClick={ ( e ) => handleEditTask( e, task ) }

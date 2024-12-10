@@ -1,5 +1,5 @@
 import React from 'react';
-import { TASK_FIELDS } from '../config/taskConfig';
+import { GROUP_BY_DROPDOWN_VALUES, TASK_FIELDS } from '../config/taskConfig';
 import useTaskActionHandlers from '../hooks/useTaskActionHandlers';
 
 const GroupByDropdown: React.FC = () => {
@@ -7,20 +7,28 @@ const GroupByDropdown: React.FC = () => {
 
   const groupByOptions = TASK_FIELDS
     .filter( field => field.allowGroupBy )
-    .map( field => field.name );
+    .map( field => {
+      switch ( field.name ) {
+        case 'createdAt': return 'Created On';
+        case 'dueDate': return 'Pending On';
+        default: return field.name.charAt( 0 ).toUpperCase() + field.name.slice( 1 );
+      }
+    } );
 
   return (
     <select
-      value={ groupBy || 'None' }
+      defaultValue={ groupBy ? GROUP_BY_DROPDOWN_VALUES[groupBy] : 'None' }
       onChange={ ( e ) => handleSelectGroupBy( e.target.value ) }
-      className='border rounded-md p-2 w-full md:w-1/3 lg:w-1/4'
+      className='border-2 rounded-md p-2 w-full md:w-1/3 lg:w-1/4'
     >
-      <option value='None'>Group By</option>
-      { groupByOptions.map( option => (
-        <option key={ option } value={ option }>
-          { option.charAt( 0 ).toUpperCase() + option.slice( 1 ) }
+      <option disabled>Group By</option>
+      <option value='None'>None</option>
+      { groupByOptions.map( fieldName => (
+        <option key={ fieldName } value={ fieldName }>
+          { fieldName }
         </option>
-      ) ) }
+      ) )
+      }
     </select>
   );
 };

@@ -1,44 +1,64 @@
 import React from 'react';
 import { TASK_FIELDS } from '../config/taskConfig';
-import { ChevronDownCircle, ChevronUpCircle } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import useTaskActionHandlers from '../hooks/useTaskActionHandlers';
 
-
 const TaskListTableHeader: React.FC = () => {
-  const { handleSortColumn } = useTaskActionHandlers();
+  const { handleSortColumn, sortColumn, sortDirection } = useTaskActionHandlers();
   const sortableColumns = TASK_FIELDS.filter( field => field.allowSort );
+
+  const headerMapping = {
+    'title': 'Summary',
+    'priority': 'Priority',
+    'createdAt': 'Created On',
+    'dueDate': 'Pending On'
+  };
+
   return (
     <thead>
-      <tr className='bg-gray-200'>
-        { ['Summary', 'Priority', 'Created On', 'Due Date', 'Actions'].map( ( header ) => {
-          const matchingField = sortableColumns.find( field => {
-            switch ( header ) {
-              case 'Summary': return field.name === 'title';
-              case 'Priority': return field.name === 'priority';
-              case 'Created On': return field.name === 'createdAt';
-              case 'Due Date': return field.name === 'dueDate';
-              default: return 'Actions';
-            }
-          } );
+      <tr className='bg-gray-300'>
+        { Object.entries( headerMapping ).map( ( [fieldName, header] ) => {
+          const matchingField = sortableColumns.find( field => field.name === fieldName );
 
           return (
             <th
               key={ header }
-              className='p-2 border group'
-              onClick={ () => matchingField && handleSortColumn( matchingField.name ) }
+              className={ `${sortColumn === fieldName
+                ? 'bg-gray-200 border-purple-400 font-bold'
+                : ''}
+                font-semibold border border-gray-400 hover:bg-gray-200 hover:border-purple-400 p-2 transition-colors duration-300 cursor-pointer` }
+              onClick={ () => matchingField && handleSortColumn( fieldName ) }
             >
-              { matchingField && (
-                <div className='flex gap-2 justify-center items-center'>
-                  { header }
-                  <div className='hidden group-hover:flex gap-1 justify-center items-center'>
-                  <ChevronUpCircle className='w-3 h-3 text-gray-400 cursor-pointer' />
-                    <ChevronDownCircle className='w-3 h-3 text-gray-400 cursor-pointer' />
-                    </div>
-                </div>
-              ) }
+              <div className='flex items-center justify-center gap-2'>
+                <span>{ header }</span>
+                { matchingField && sortColumn && (
+                  <div className='flex gap-1'>
+                    <ArrowUpCircle
+                      className={ `
+                        size-5
+                        ${sortColumn === fieldName && sortDirection === 'asc'
+                          ? 'text-purple-600'
+                          : 'text-gray-400'}
+                        hover:text-purple-500
+                      `}
+                    />
+                    <ArrowDownCircle
+                      className={ `
+                        size-5
+                        ${sortColumn === fieldName && sortDirection === 'desc'
+                          ? 'text-purple-600'
+                          : 'text-gray-400'}
+                        hover:text-purple-500
+                      `}
+                    />
+                  </div>
+                ) }
+              </div>
             </th>
           );
-        } ) }
+        } ).concat(
+          <th key='actions' className='border border-gray-400 font-semibold p-2 transition-colors duration-300'>Actions</th>
+        ) }
       </tr>
     </thead>
   );

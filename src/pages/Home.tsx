@@ -11,11 +11,20 @@ import { Task } from '../types/task';
 const Home: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'completed' | 'pending'>( 'all' );
 
-  const { tasks, handleAddTask, loading, } = useTaskActionHandlers();
+  const { tasks, handleAddTask, loading, groupBy } = useTaskActionHandlers();
   const { isAddTaskModalVisible, handleToggleModalVisibility } = useModalVisibilityHandlers();
 
   // Filter tasks based on active tab
   const filteredTasks = useMemo( () => {
+    if ( groupBy ) {
+      return ( tasks as Task[][] ).filter( ( group ) => {
+        if ( activeTab === 'all' ) return true;
+        if ( activeTab === 'completed' ) return group[0].currentState;
+        return !group[0].currentState;
+      } );
+    }
+
+    // filtered tasks when tasks are not grouped
     return ( tasks as Task[] ).filter( ( task ) => {
       if ( activeTab === 'all' ) return true;
       if ( activeTab === 'completed' ) return task.currentState;

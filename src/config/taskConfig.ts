@@ -5,6 +5,16 @@ export interface TaskField {
   allowGroupBy: boolean;
 }
 
+export const GROUP_BY_DROPDOWN_OPTIONS: Record<string, string> = {
+  'Priority': 'priority',
+  'Created On': 'createdAt',
+  'Pending On': 'dueDate',
+};
+
+export const GROUP_BY_DROPDOWN_VALUES: Record<string, string> = Object.fromEntries(
+  Object.entries( GROUP_BY_DROPDOWN_OPTIONS ).map( ( [key, value] ) => [value, key] )
+);
+
 export const TASK_FIELDS: TaskField[] = [
   {
     name: 'currentState',

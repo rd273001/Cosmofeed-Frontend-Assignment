@@ -5,6 +5,7 @@ import { Task } from '../types/task';
 import { addTask, deleteTask, updateTask } from '../store/task/asyncThunks';
 import { setSelectedTask, toggleTaskState, setSearchText, setGroupBy, setSorting } from '../store/task/taskSlice';
 import { toggleModalVisibility } from '../store/modal/modalSlice';
+import { GROUP_BY_DROPDOWN_OPTIONS } from '../config/taskConfig';
 
 
 const useTaskActionHandlers = () => {
@@ -26,27 +27,31 @@ const useTaskActionHandlers = () => {
     // Sorting
     if ( sortColumn ) {
       processedTasks.sort( ( a, b ) => {
-        const valueA = a[sortColumn as keyof Task] as any;
-        const valueB = b[sortColumn as keyof Task] as any;
+        const valueA = a[sortColumn as keyof Task];
+        const valueB = b[sortColumn as keyof Task];
 
         if ( valueA === undefined || valueB === undefined ) return 0;
 
+        // Handle date sorting
+        if ( ( sortColumn === 'createdAt' || sortColumn === 'dueDate' ) && valueA && valueB ) {
+          const dateA = new Date( valueA as number );
+          const dateB = new Date( valueB as number );
+          return sortDirection === 'asc'
+            ? dateA.getTime() - dateB.getTime()
+            : dateB.getTime() - dateA.getTime();
+        }
+
+        // String comparison
         if ( typeof valueA === 'string' && typeof valueB === 'string' ) {
           return sortDirection === 'asc'
             ? valueA.localeCompare( valueB )
             : valueB.localeCompare( valueA );
         }
 
-        // For date and numeric comparisons
-        if ( valueA instanceof Date && valueB instanceof Date ) {
-          return sortDirection === 'asc'
-            ? valueA.getTime() - valueB.getTime()
-            : valueB.getTime() - valueA.getTime();
-        }
-
+        // Numeric comparison for other types
         return sortDirection === 'asc'
-          ? valueA - valueB
-          : valueB - valueA;
+          ? ( valueA as number ) - ( valueB as number )
+          : ( valueB as number ) - ( valueA as number );
       } );
     }
 
@@ -54,7 +59,14 @@ const useTaskActionHandlers = () => {
     if ( groupBy ) {
       const groupMap: Record<string, Task[]> = {};
       processedTasks.forEach( task => {
-        const groupKey = task[groupBy as keyof Task]?.toString() || 'Ungrouped';
+        let groupKey = 'Ungrouped';
+        // Handle date-based grouping specifically
+        if ( ( groupBy === 'createdAt' || groupBy === 'dueDate' ) && task[groupBy] ) {
+          const date = new Date( task[groupBy] as number );
+          groupKey = date.toLocaleDateString();
+        } else if ( groupBy === 'priority' ) {
+          groupKey = task.priority || 'No Priority';
+        }
         if ( !groupMap[groupKey] ) {
           groupMap[groupKey] = [];
         }
@@ -98,7 +110,8 @@ const useTaskActionHandlers = () => {
   }, [dispatch] );
 
   const handleSelectGroupBy = useCallback( ( selectedValue: string ) => {
-    dispatch( setGroupBy( selectedValue === 'None' ? null : selectedValue ) );
+    // Map the display value to the actual group by value
+    dispatch( setGroupBy( GROUP_BY_DROPDOWN_OPTIONS[selectedValue] ) );
   }, [dispatch] );
 
   return {
