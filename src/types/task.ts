@@ -18,4 +18,5 @@ export interface TaskState {
   groupBy: string | null;
   loading?: boolean;
   selectedTask: Task | null;
+  selectedTasksIds: string[];
 }

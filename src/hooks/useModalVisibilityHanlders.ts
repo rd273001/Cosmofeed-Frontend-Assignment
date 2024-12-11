@@ -7,7 +7,15 @@ import { ModalType } from '../types/modal';
 
 const useModalVisibilityHandlers = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isViewTaskModalVisible, isEditModalVisible, isConfirmDeleteModalVisible, isAddTaskModalVisible, } = useSelector( ( state: RootState ) => state.modals );
+  const {
+    isViewTaskModalVisible,
+    isEditModalVisible,
+    isConfirmDeleteModalVisible,
+    isAddTaskModalVisible,
+    isConfirmBulkMarkAsDoneModalVisible,
+    isConfirmBulkMarkAsPendingModalVisible,
+    isConfirmBulkDeleteModalVisible
+  } = useSelector( ( state: RootState ) => state.modals );
 
   const handleToggleModalVisibility = useCallback( ( modalName: ModalType ) => {
     dispatch( toggleModalVisibility( modalName ) );
@@ -18,6 +26,9 @@ const useModalVisibilityHandlers = () => {
     isEditModalVisible,
     isConfirmDeleteModalVisible,
     isAddTaskModalVisible,
+    isConfirmBulkMarkAsDoneModalVisible,
+    isConfirmBulkMarkAsPendingModalVisible,
+    isConfirmBulkDeleteModalVisible,
     handleToggleModalVisibility,
   };
 };

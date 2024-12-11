@@ -1,1 +1,1 @@
-export type ModalType = 'AddTask' | 'EditTask' | 'ConfirmDelete' | 'ViewTask';
+export type ModalType = 'AddTask' | 'EditTask' | 'ConfirmDelete' | 'ViewTask' | 'ConfirmBulkMarkAsDone' | 'ConfirmBulkMarkAsPending' | 'ConfirmBulkDelete';

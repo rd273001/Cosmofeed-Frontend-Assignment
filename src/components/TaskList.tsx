@@ -6,6 +6,7 @@ import ConfirmBeforeActionAlert from './ConfirmBeforeActionAlert';
 import useTaskActionHandlers from '../hooks/useTaskActionHandlers';
 import TaskListTableHeader from './TaskListTableHeader';
 import TaskListRow from './TaskListRow';
+import useBulkTaskActions from '../hooks/useBulkTaskActions';
 
 interface TaskListProps {
   tasks: Task[] | Task[][];
@@ -18,7 +19,7 @@ const renderTaskList = ( tasks: Task[] | Task[][], groupBy: string ) => {
       <Fragment key={ index }>
         { group.length > 0 && (
           <tr className='bg-gray-200 font-semibold'>
-            <td colSpan={ 5 } className='p-2 border border-gray-300'>
+            <td colSpan={ 6 } className='p-2 border border-gray-300'>
               {/* Dynamic group header based on groupBy value */ }
               { group.length > 0 ?
                 groupBy === 'createdAt' && group[0].createdAt ?
@@ -42,11 +43,45 @@ const renderTaskList = ( tasks: Task[] | Task[][], groupBy: string ) => {
 };
 
 const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
-  const { isViewTaskModalVisible, isEditModalVisible, isConfirmDeleteModalVisible, handleToggleModalVisibility } = useModalVisibilityHandlers();
+
+  const {
+    isViewTaskModalVisible,
+    isEditModalVisible,
+    isConfirmDeleteModalVisible,
+    isConfirmBulkMarkAsPendingModalVisible,
+    isConfirmBulkMarkAsDoneModalVisible,
+    isConfirmBulkDeleteModalVisible,
+    handleToggleModalVisibility
+  } = useModalVisibilityHandlers();
   const { selectedTask, handleDeleteTask, groupBy } = useTaskActionHandlers();
+  const { selectedTasksIds, handleBulkMarkAsDone, handleBulkMarkAsPending, handleBulkDelete } = useBulkTaskActions();
 
   return (
     <div>
+      { selectedTasksIds.length > 0 && (
+        <div className='mb-4 flex items-center space-x-2'>
+          <span>{ selectedTasksIds.length } tasks selected</span>
+          <button
+            onClick={ () => handleToggleModalVisibility( 'ConfirmBulkMarkAsDone' ) }
+            className='bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600'
+          >
+            Mark as Done
+          </button>
+          <button
+            onClick={ () => handleToggleModalVisibility( 'ConfirmBulkMarkAsPending' ) }
+            className='bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600'
+          >
+            Mark as Pending
+          </button>
+          <button
+            onClick={ () => handleToggleModalVisibility( 'ConfirmBulkDelete' ) }
+            className='bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600'
+          >
+            Delete
+          </button>
+        </div>
+      ) }
+
       { tasks.length > 0 ? (
         <table className='w-full border-collapse'>
           <TaskListTableHeader />
@@ -68,6 +103,32 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
           onConfirm={ () => handleDeleteTask( selectedTask?.id as string ) }
           onClose={ () => handleToggleModalVisibility( 'ConfirmDelete' ) }
           message={ `Are you sure you want to delete the task '${selectedTask?.title}'?` }
+        />
+      ) }
+
+      { isConfirmBulkMarkAsDoneModalVisible && (
+        <ConfirmBeforeActionAlert
+          actionType='default'
+          onConfirm={ handleBulkMarkAsDone }
+          onClose={ () => handleToggleModalVisibility( 'ConfirmBulkMarkAsDone' ) }
+          message={ `Are you sure you want to Mark ${selectedTasksIds.length} selected tasks as Done?` }
+        />
+      ) }
+      { isConfirmBulkMarkAsPendingModalVisible && (
+        <ConfirmBeforeActionAlert
+          actionType='default'
+          onConfirm={ handleBulkMarkAsPending }
+          onClose={ () => handleToggleModalVisibility( 'ConfirmBulkMarkAsPending' ) }
+          message={ `Are you sure you want to Mark ${selectedTasksIds.length} selected tasks as Pending?` }
+        />
+      ) }
+
+      { isConfirmBulkDeleteModalVisible && (
+        <ConfirmBeforeActionAlert
+          actionType='delete'
+          onConfirm={ handleBulkDelete }
+          onClose={ () => handleToggleModalVisibility( 'ConfirmBulkDelete' ) }
+          message={ `Are you sure you want to delete ${selectedTasksIds.length} selected tasks?` }
         />
       ) }
     </div>

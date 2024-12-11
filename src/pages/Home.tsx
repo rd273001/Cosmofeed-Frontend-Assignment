@@ -33,8 +33,8 @@ const Home: React.FC = () => {
   }, [tasks, activeTab] );
 
   return (
-    <div className='container mx-auto'>
-      <div className='p-4'>
+    <div className='container mx-auto flex flex-col flex-1 overflow-auto'>
+      <div className='p-4 mb-6'>
         {/* TODO - Search & Group By Dropdown */ }
 
         <TaskTabs activeTab={ activeTab } onTabChange={ setActiveTab } />

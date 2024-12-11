@@ -10,6 +10,7 @@ const initialState: TaskState = {
   groupBy: null,
   loading: false,
   selectedTask: null,
+  selectedTasksIds: [],
 };
 
 const taskSlice = createSlice( {
@@ -40,6 +41,41 @@ const taskSlice = createSlice( {
     },
     setGroupBy: ( state, action: PayloadAction<string | null> ) => {
       state.groupBy = action.payload;
+    },
+
+    // bulk action reducers
+    setSelectedTasksIds: ( state, action: PayloadAction<string[]> ) => {
+      state.selectedTasksIds = action.payload;
+    },
+    clearSelectedTasksIds: ( state ) => {
+      state.selectedTasksIds = [];
+    },
+    toggleBulkTaskSelection: ( state, action: PayloadAction<string> ) => {
+      const taskId = action.payload;
+      const index = state.selectedTasksIds.indexOf( taskId );
+      if ( index !== -1 ) {
+        // If task is already selected, remove it
+        state.selectedTasksIds.splice( index, 1 );
+      } else {
+        // If task is not selected, add it
+        state.selectedTasksIds.push( taskId );
+      }
+    },
+    bulkUpdateTaskState: ( state, action: PayloadAction<{ taskIds: string[], state: boolean }> ) => {
+      const { taskIds, state: newState } = action.payload;
+      state.tasks = state.tasks.map( task =>
+        taskIds.includes( task.id )
+          ? { ...task, currentState: newState }
+          : task
+      );
+      // Clear selection after bulk action
+      state.selectedTasksIds = [];
+    },
+    bulkDeleteTasks: ( state, action: PayloadAction<string[]> ) => {
+      const taskIdsToDelete = action.payload;
+      state.tasks = state.tasks.filter( task => !taskIdsToDelete.includes( task.id ) );
+      // Clear selection after bulk action
+      state.selectedTasksIds = [];
     },
   },
   extraReducers: ( builder ) => {
@@ -78,6 +114,11 @@ export const {
   setSelectedTask,
   setSorting,
   setGroupBy,
+  setSelectedTasksIds,
+  clearSelectedTasksIds,
+  toggleBulkTaskSelection,
+  bulkUpdateTaskState,
+  bulkDeleteTasks,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

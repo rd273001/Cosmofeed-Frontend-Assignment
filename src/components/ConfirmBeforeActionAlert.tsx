@@ -21,7 +21,7 @@ const ConfirmBeforeActionAlert: React.FC<ConfirmBeforeActionAlertProps> = ( {
   // Define dynamic configurations based on action type
   const actionConfig = {
     delete: {
-      title: 'Confirm Deletion',
+      title: 'Confirm Delete',
       defaultMessage: 'Are you sure you want to delete this item?',
       confirmButtonText: 'Delete',
       confirmButtonClasses: 'bg-red-500 hover:bg-red-600',
