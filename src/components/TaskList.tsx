@@ -48,12 +48,15 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
     isViewTaskModalVisible,
     isEditModalVisible,
     isConfirmDeleteModalVisible,
+    isToggleTaskAsDoneModalVisible,
+    isToggleTaskAsPendingModalVisible,
     isConfirmBulkMarkAsPendingModalVisible,
     isConfirmBulkMarkAsDoneModalVisible,
     isConfirmBulkDeleteModalVisible,
     handleToggleModalVisibility
   } = useModalVisibilityHandlers();
-  const { selectedTask, handleDeleteTask, groupBy } = useTaskActionHandlers();
+
+  const { selectedTask, handleDeleteTask, groupBy, handleToggleTaskState } = useTaskActionHandlers();
   const { selectedTasksIds, handleBulkMarkAsDone, handleBulkMarkAsPending, handleBulkDelete } = useBulkTaskActions();
 
   return (
@@ -102,7 +105,25 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
           actionType='delete'
           onConfirm={ () => handleDeleteTask( selectedTask?.id as string ) }
           onClose={ () => handleToggleModalVisibility( 'ConfirmDelete' ) }
-          message={ `Are you sure you want to delete the task '${selectedTask?.title}'?` }
+          message={ `Are you sure you want to delete the task - '${selectedTask?.title}'?` }
+        />
+      ) }
+
+      { isToggleTaskAsDoneModalVisible && (
+        <ConfirmBeforeActionAlert
+          actionType='default'
+          onConfirm={ () => handleToggleTaskState( selectedTask?.id as string, 'ToggleTaskAsDone' ) }
+          onClose={ () => handleToggleModalVisibility( 'ToggleTaskAsDone' ) }
+          message={ `Are you sure you want to Mark Task as Done?` }
+        />
+      ) }
+
+      { isToggleTaskAsPendingModalVisible && (
+        <ConfirmBeforeActionAlert
+          actionType='default'
+          onConfirm={ () => handleToggleTaskState( selectedTask?.id as string, 'ToggleTaskAsPending' ) }
+          onClose={ () => handleToggleModalVisibility( 'ToggleTaskAsPending' ) }
+          message={ `Are you sure you want to Mark Task as Pending?` }
         />
       ) }
 
@@ -111,7 +132,7 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
           actionType='default'
           onConfirm={ handleBulkMarkAsDone }
           onClose={ () => handleToggleModalVisibility( 'ConfirmBulkMarkAsDone' ) }
-          message={ `Are you sure you want to Mark ${selectedTasksIds.length} selected tasks as Done?` }
+          message={ `Are you sure you want to Mark ${selectedTasksIds.length} selected task(s) as Done?` }
         />
       ) }
       { isConfirmBulkMarkAsPendingModalVisible && (
@@ -119,7 +140,7 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
           actionType='default'
           onConfirm={ handleBulkMarkAsPending }
           onClose={ () => handleToggleModalVisibility( 'ConfirmBulkMarkAsPending' ) }
-          message={ `Are you sure you want to Mark ${selectedTasksIds.length} selected tasks as Pending?` }
+          message={ `Are you sure you want to Mark ${selectedTasksIds.length} selected task(s) as Pending?` }
         />
       ) }
 
@@ -128,7 +149,7 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
           actionType='delete'
           onConfirm={ handleBulkDelete }
           onClose={ () => handleToggleModalVisibility( 'ConfirmBulkDelete' ) }
-          message={ `Are you sure you want to delete ${selectedTasksIds.length} selected tasks?` }
+          message={ `Are you sure you want to delete ${selectedTasksIds.length} selected task(s)?` }
         />
       ) }
     </div>

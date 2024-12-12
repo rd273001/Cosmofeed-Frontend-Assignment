@@ -74,7 +74,7 @@ const ConfirmBeforeActionAlert: React.FC<ConfirmBeforeActionAlertProps> = ( {
           </button>
           <button
             onClick={ onConfirm }
-            className={ `px-4 py-2 rounded-lg ${config.confirmButtonClasses} min-w-[25%]` }
+            className={ `px-4 py-2 rounded-lg min-w-[25%] ${config.confirmButtonClasses}` }
           >
             { config.confirmButtonText }
           </button>

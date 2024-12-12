@@ -44,3 +44,36 @@ export const deleteTask = createAsyncThunk(
     } );
   }
 );
+
+export const toggleTaskState = createAsyncThunk(
+  'tasks/toggleTaskState',
+  async ( taskId: string ) => {
+    return new Promise<string>( ( resolve ) => {
+      setTimeout( () => {
+        resolve( taskId );
+      }, MOCK_API_DELAY );
+    } );
+  }
+);
+
+export const bulkToggleTaskState = createAsyncThunk(
+  'tasks/bulkToggleTaskState',
+  async ( { taskIds, taskState }: { taskIds: string[], taskState: boolean } ) => {
+    return new Promise<{ taskIds: string[], taskState: boolean }>( ( resolve ) => {
+      setTimeout( () => {
+        resolve( { taskIds, taskState } );
+      }, MOCK_API_DELAY );
+    } );
+  }
+);
+
+export const bulkDeleteTask = createAsyncThunk(
+  'tasks/bulkDeleteTask',
+  async ( taskIds: string[] ) => {
+    return new Promise<string[]>( ( resolve ) => {
+      setTimeout( () => {
+        resolve( taskIds );
+      }, MOCK_API_DELAY );
+    } );
+  }
+);

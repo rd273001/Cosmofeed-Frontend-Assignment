@@ -12,6 +12,8 @@ const useModalVisibilityHandlers = () => {
     isEditModalVisible,
     isConfirmDeleteModalVisible,
     isAddTaskModalVisible,
+    isToggleTaskAsDoneModalVisible,
+    isToggleTaskAsPendingModalVisible,
     isConfirmBulkMarkAsDoneModalVisible,
     isConfirmBulkMarkAsPendingModalVisible,
     isConfirmBulkDeleteModalVisible
@@ -26,6 +28,8 @@ const useModalVisibilityHandlers = () => {
     isEditModalVisible,
     isConfirmDeleteModalVisible,
     isAddTaskModalVisible,
+    isToggleTaskAsDoneModalVisible,
+    isToggleTaskAsPendingModalVisible,
     isConfirmBulkMarkAsDoneModalVisible,
     isConfirmBulkMarkAsPendingModalVisible,
     isConfirmBulkDeleteModalVisible,

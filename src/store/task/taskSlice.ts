@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Task, TaskState } from '../../types/task';
-import { addTask, deleteTask, updateTask } from './asyncThunks';
+import { addTask, bulkDeleteTask, bulkToggleTaskState, deleteTask, toggleTaskState, updateTask } from './asyncThunks';
 
 const initialState: TaskState = {
   tasks: [],
@@ -17,12 +17,6 @@ const taskSlice = createSlice( {
   name: 'tasks',
   initialState,
   reducers: {
-    toggleTaskState: ( state, action: PayloadAction<string> ) => {
-      const task = state.tasks.find( t => t.id === action.payload );
-      if ( task ) {
-        task.currentState = !task.currentState;
-      }
-    },
     setSearchText: ( state, action: PayloadAction<string> ) => {
       state.searchText = action.payload;
     },
@@ -61,25 +55,10 @@ const taskSlice = createSlice( {
         state.selectedTasksIds.push( taskId );
       }
     },
-    bulkUpdateTaskState: ( state, action: PayloadAction<{ taskIds: string[], state: boolean }> ) => {
-      const { taskIds, state: newState } = action.payload;
-      state.tasks = state.tasks.map( task =>
-        taskIds.includes( task.id )
-          ? { ...task, currentState: newState }
-          : task
-      );
-      // Clear selection after bulk action
-      state.selectedTasksIds = [];
-    },
-    bulkDeleteTasks: ( state, action: PayloadAction<string[]> ) => {
-      const taskIdsToDelete = action.payload;
-      state.tasks = state.tasks.filter( task => !taskIdsToDelete.includes( task.id ) );
-      // Clear selection after bulk action
-      state.selectedTasksIds = [];
-    },
   },
   extraReducers: ( builder ) => {
     builder
+      // Add new Task
       .addCase( addTask.pending, ( state ) => {
         state.loading = true;
       } )
@@ -88,6 +67,10 @@ const taskSlice = createSlice( {
         state.tasks.unshift( action.payload );
         state.loading = false;
       } )
+      .addCase( addTask.rejected, ( state ) => {
+        state.loading = false;
+      } )
+      // Update/Edit existing Task
       .addCase( updateTask.pending, ( state ) => {
         state.loading = true;
       } )
@@ -98,11 +81,63 @@ const taskSlice = createSlice( {
         }
         state.loading = false;
       } )
+      .addCase( updateTask.rejected, ( state ) => {
+        state.loading = false;
+      } )
+      // Delete Task
       .addCase( deleteTask.pending, ( state ) => {
         state.loading = true;
       } )
       .addCase( deleteTask.fulfilled, ( state, action ) => {
         state.tasks = state.tasks.filter( t => t.id !== action.payload );
+        state.loading = false;
+      } )
+      .addCase( deleteTask.rejected, ( state ) => {
+        state.loading = false;
+      } )
+      // Toggle Task current state as Done/Pending
+      .addCase( toggleTaskState.pending, ( state ) => {
+        state.loading = true;
+      } )
+      .addCase( toggleTaskState.fulfilled, ( state, action ) => {
+        const task = state.tasks.find( t => t.id === action.payload );
+        if ( task ) {
+          task.currentState = !task.currentState;
+        }
+        state.loading = false;
+      } )
+      .addCase( toggleTaskState.rejected, ( state ) => {
+        state.loading = false;
+      } )
+      // Bulk Toggle Task current state as Done/Pending
+      .addCase( bulkToggleTaskState.pending, ( state ) => {
+        state.loading = true;
+      } )
+      .addCase( bulkToggleTaskState.fulfilled, ( state, action ) => {
+        const { taskIds, taskState } = action.payload;
+        state.tasks = state.tasks.map( task => taskIds.includes( task.id )
+          ? { ...task, currentState: taskState }   // set state directly as true or false for marking as done or pending respectively
+          : task
+        );
+        // Clear selection after bulk action
+        state.selectedTasksIds = [];
+        state.loading = false;
+      } )
+      .addCase( bulkToggleTaskState.rejected, ( state ) => {
+        state.loading = false;
+      } )
+      // Bulk Delete tasks
+      .addCase( bulkDeleteTask.pending, ( state ) => {
+        state.loading = true;
+      } )
+      .addCase( bulkDeleteTask.fulfilled, ( state, action ) => {
+        const taskIdsToDelete = action.payload;
+        state.tasks = state.tasks.filter( task => !taskIdsToDelete.includes( task.id ) );  // remove the tasks with ids which are in taskIdsToDelete array
+        // Clear selection after bulk action
+        state.selectedTasksIds = [];
+        state.loading = false;
+      } )
+      .addCase( bulkDeleteTask.rejected, ( state ) => {
         state.loading = false;
       } );
   }
@@ -110,15 +145,12 @@ const taskSlice = createSlice( {
 
 export const {
   setSearchText,
-  toggleTaskState,
   setSelectedTask,
   setSorting,
   setGroupBy,
   setSelectedTasksIds,
   clearSelectedTasksIds,
   toggleBulkTaskSelection,
-  bulkUpdateTaskState,
-  bulkDeleteTasks,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

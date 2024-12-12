@@ -12,33 +12,33 @@ interface TaskListRowProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const TaskListRow: React.FC<TaskListRowProps> = ( { task } ) => {
-  const { searchText, handleSelectedTask, handleToggleTaskState } = useTaskActionHandlers();
+  const { searchText, handleSelectedTask } = useTaskActionHandlers();
   const { handleToggleModalVisibility } = useModalVisibilityHandlers();
   const { selectedTasksIds, handleToggleBulkTaskSelection } = useBulkTaskActions();
 
-  const handleOpenModal = ( modalType: ModalType, task: Task ) => {
+  const handleOpenModal = ( modalType: ModalType ) => {
     handleSelectedTask( task );
     handleToggleModalVisibility( modalType );
   };
 
-  const handleEditTask = ( e: MouseEvent, task: Task ) => {
+  const handleEditTask = ( e: MouseEvent ) => {
     e.stopPropagation();
-    handleOpenModal( 'EditTask', task );
+    handleOpenModal( 'EditTask' );
   };
 
-  const handleDeleteTask = ( e: MouseEvent, task: Task ) => {
+  const handleDeleteTask = ( e: MouseEvent ) => {
     e.stopPropagation();
-    handleOpenModal( 'ConfirmDelete', task );
+    handleOpenModal( 'ConfirmDelete' );
   };
 
-  const onToggleTaskState = ( e: MouseEvent, task: Task ) => {
+  const onToggleTaskState = ( e: MouseEvent ) => {
     e.stopPropagation();
-    handleToggleTaskState( task.id );
+    handleOpenModal( task.currentState ? 'ToggleTaskAsPending' : 'ToggleTaskAsDone' );
   };
 
-  const handleBulkTaskSelection = ( e: MouseEvent, taskId: string ) => {
+  const handleBulkTaskSelection = ( e: MouseEvent ) => {
     e.stopPropagation();
-    handleToggleBulkTaskSelection( taskId );
+    handleToggleBulkTaskSelection( task.id );
   };
 
   const isSelected = selectedTasksIds.includes( task.id );
@@ -46,45 +46,43 @@ const TaskListRow: React.FC<TaskListRowProps> = ( { task } ) => {
   return (
     <tr
       className={ `hover:bg-gray-200 ${task.currentState ? 'bg-green-200 hover:bg-green-300 line-through' : ''} cursor-pointer` }
-      onClick={ () => handleOpenModal( 'ViewTask', task ) }
+      onClick={ () => handleOpenModal( 'ViewTask' ) }
     >
       <td
         className='group peer bg-gray-100 p-2 border border-gray-300 cursor-pointer'
-        onClick={ ( e ) => handleBulkTaskSelection( e, task.id ) }
-        onMouseEnter={ (e) => e.stopPropagation() }
-        onMouseLeave={ (e) => e.stopPropagation() }
+        onClick={ handleBulkTaskSelection }
       >
         { isSelected ?
           <CheckSquare
-            onClick={ ( e ) => handleBulkTaskSelection( e, task.id ) }
+            onClick={ handleBulkTaskSelection }
             className='size-5 text-purple-600 fill-white group-hover:text-purple-400'
           /> :
           <Square
-            onClick={ ( e ) => handleBulkTaskSelection( e, task.id ) }
+            onClick={ handleBulkTaskSelection }
             className='size-5 text-gray-400 fill-white group-hover:text-purple-600'
           />
         }
       </td>
-      <td className='p-2 border border-gray-300 peer-hover:bg-gray-100'><HighlightText wholeText={ task.title } highlightText={ searchText } /></td>
-      <td className='p-2 border border-gray-300 peer-hover:bg-gray-100'>{ task.priority }</td>
-      <td className='p-2 border border-gray-300 peer-hover:bg-gray-100'>
+      <td className={ `p-2 border border-gray-300 peer-hover:bg-gray-100 ${task.currentState ? 'peer-hover:bg-green-200' : ''}` }><HighlightText wholeText={ task.title } highlightText={ searchText } /></td>
+      <td className={ `p-2 border border-gray-300 peer-hover:bg-gray-100 ${task.currentState ? 'peer-hover:bg-green-200' : ''}` }>{ task.priority }</td>
+      <td className={ `p-2 border border-gray-300 peer-hover:bg-gray-100 ${task.currentState ? 'peer-hover:bg-green-200' : ''}` }>
         { new Date( task.createdAt ).toLocaleDateString() }
       </td>
-      <td className='p-2 border border-gray-300 peer-hover:bg-gray-100'>
+      <td className={ `p-2 border border-gray-300 peer-hover:bg-gray-100 ${task.currentState ? 'peer-hover:bg-green-200' : ''}` }>
         { task.dueDate
           ? new Date( task.dueDate ).toLocaleDateString()
           : 'No due date' }
       </td>
-      <td className='p-2 border border-gray-300 peer-hover:bg-gray-100'>
+      <td className={ `p-2 border border-gray-300 peer-hover:bg-gray-100 ${task.currentState ? 'peer-hover:bg-green-200' : ''}` }>
         <div className='flex justify-center lg:gap-6 md:gap-4 gap-4 text-sm'>
           <button
-            onClick={ ( e ) => handleEditTask( e, task ) }
+            onClick={ handleEditTask }
             className='text-blue-500 hover:text-blue-700'
           >
             <Edit />
           </button>
           <button
-            onClick={ ( e ) => onToggleTaskState( e, task ) }
+            onClick={ onToggleTaskState }
             className={ `
               ${task.currentState
                 ? 'text-yellow-500 hover:text-yellow-700'
@@ -94,7 +92,7 @@ const TaskListRow: React.FC<TaskListRowProps> = ( { task } ) => {
             { task.currentState ? <ListRestart /> : <ListCheck /> }
           </button>
           <button
-            onClick={ ( e ) => handleDeleteTask( e, task ) }
+            onClick={ handleDeleteTask }
             className='text-red-500 hover:text-red-700'
           >
             <Trash2 />

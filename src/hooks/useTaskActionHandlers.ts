@@ -2,10 +2,11 @@ import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store/store';
 import { Task } from '../types/task';
-import { addTask, deleteTask, updateTask } from '../store/task/asyncThunks';
-import { setSelectedTask, toggleTaskState, setSearchText, setGroupBy, setSorting } from '../store/task/taskSlice';
+import { addTask, deleteTask, updateTask, toggleTaskState } from '../store/task/asyncThunks';
+import { setSelectedTask, setSearchText, setGroupBy, setSorting } from '../store/task/taskSlice';
 import { toggleModalVisibility } from '../store/modal/modalSlice';
 import { GROUP_BY_DROPDOWN_OPTIONS } from '../config/taskConfig';
+import { ModalType } from '../types/modal';
 
 
 const useTaskActionHandlers = () => {
@@ -93,12 +94,13 @@ const useTaskActionHandlers = () => {
     dispatch( toggleModalVisibility( 'ConfirmDelete' ) );
   }, [dispatch] );
 
-  const handleSelectedTask = useCallback( ( task: Task ) => {
-    dispatch( setSelectedTask( task ) );
+  const handleToggleTaskState = useCallback( ( taskId: string, modelType: ModalType ) => {
+    dispatch( toggleTaskState( taskId ) );
+    dispatch( toggleModalVisibility( modelType ) );
   }, [dispatch] );
 
-  const handleToggleTaskState = useCallback( ( taskId: string ) => {
-    dispatch( toggleTaskState( taskId ) );
+  const handleSelectedTask = useCallback( ( task: Task ) => {
+    dispatch( setSelectedTask( task ) );
   }, [dispatch] );
 
   const handleSearchTasks = useCallback( ( text: string ) => {

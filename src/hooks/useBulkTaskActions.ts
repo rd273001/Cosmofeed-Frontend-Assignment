@@ -2,8 +2,9 @@ import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store/store';
 import { Task } from '../types/task';
-import { setSelectedTasksIds, clearSelectedTasksIds, toggleBulkTaskSelection, bulkUpdateTaskState, bulkDeleteTasks } from '../store/task/taskSlice';
+import { setSelectedTasksIds, clearSelectedTasksIds, toggleBulkTaskSelection } from '../store/task/taskSlice';
 import { toggleModalVisibility } from '../store/modal/modalSlice';
+import { bulkDeleteTask, bulkToggleTaskState } from '../store/task/asyncThunks';
 
 const useBulkTaskActions = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -22,23 +23,23 @@ const useBulkTaskActions = () => {
   }, [dispatch] );
 
   const handleBulkMarkAsDone = useCallback( () => {
-    dispatch( bulkUpdateTaskState( {
+    dispatch( bulkToggleTaskState( {
       taskIds: selectedTasksIds,
-      state: true
+      taskState: true
     } ) );
     dispatch( toggleModalVisibility( 'ConfirmBulkMarkAsDone' ) );
   }, [dispatch, selectedTasksIds] );
 
   const handleBulkMarkAsPending = useCallback( () => {
-    dispatch( bulkUpdateTaskState( {
+    dispatch( bulkToggleTaskState( {
       taskIds: selectedTasksIds,
-      state: false
+      taskState: false
     } ) );
     dispatch( toggleModalVisibility( 'ConfirmBulkMarkAsPending' ) );
   }, [dispatch, selectedTasksIds] );
 
   const handleBulkDelete = useCallback( () => {
-    dispatch( bulkDeleteTasks( selectedTasksIds ) );
+    dispatch( bulkDeleteTask( selectedTasksIds ) );
     dispatch( toggleModalVisibility( 'ConfirmBulkDelete' ) );
   }, [dispatch, selectedTasksIds] );
 

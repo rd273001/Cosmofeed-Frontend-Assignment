@@ -14,28 +14,32 @@ const Home: React.FC = () => {
   const { tasks, handleAddTask, loading, groupBy } = useTaskActionHandlers();
   const { isAddTaskModalVisible, handleToggleModalVisibility } = useModalVisibilityHandlers();
 
-  // Filter tasks based on active tab
   const filteredTasks = useMemo( () => {
     if ( groupBy ) {
-      return ( tasks as Task[][] ).filter( ( group ) => {
-        if ( activeTab === 'all' ) return true;
-        if ( activeTab === 'completed' ) return group[0].currentState;
-        return !group[0].currentState;
-      } );
+      return ( tasks as Task[][] ).map( group => {
+        // For grouped tasks, filter within each group based on the active tab
+        const filteredGroup = group.filter( task => {
+          if ( activeTab === 'all' ) return true;
+          if ( activeTab === 'completed' ) return task.currentState;
+          return !task.currentState;
+        } );
+
+        // If the filtered group is not empty, return it
+        return filteredGroup.length > 0 ? filteredGroup : null;
+      } ).filter( group => group !== null ) as Task[][];
     }
 
-    // filtered tasks when tasks are not grouped
+    // Non-grouped tasks filtering remains the same
     return ( tasks as Task[] ).filter( ( task ) => {
       if ( activeTab === 'all' ) return true;
       if ( activeTab === 'completed' ) return task.currentState;
       return !task.currentState;
     } );
-  }, [tasks, activeTab] );
+  }, [tasks, activeTab, groupBy] );
 
   return (
     <div className='container mx-auto flex flex-col flex-1 overflow-auto'>
       <div className='p-4 mb-6'>
-        {/* TODO - Search & Group By Dropdown */ }
 
         <TaskTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
         <TaskList tasks={ filteredTasks } />

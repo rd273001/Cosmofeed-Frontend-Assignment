@@ -6,6 +6,8 @@ const initialState = {
   isEditModalVisible: false,
   isConfirmDeleteModalVisible: false,
   isAddTaskModalVisible: false,
+  isToggleTaskAsDoneModalVisible: false,
+  isToggleTaskAsPendingModalVisible: false,
   isConfirmBulkMarkAsDoneModalVisible: false,
   isConfirmBulkMarkAsPendingModalVisible: false,
   isConfirmBulkDeleteModalVisible: false,
@@ -28,6 +30,12 @@ const taskSlice = createSlice( {
           break;
         case 'ConfirmDelete':
           state.isConfirmDeleteModalVisible = !state.isConfirmDeleteModalVisible;
+          break;
+        case 'ToggleTaskAsDone':
+          state.isToggleTaskAsDoneModalVisible = !state.isToggleTaskAsDoneModalVisible;
+          break;
+        case 'ToggleTaskAsPending':
+          state.isToggleTaskAsPendingModalVisible = !state.isToggleTaskAsPendingModalVisible;
           break;
         case 'ConfirmBulkMarkAsDone':
           state.isConfirmBulkMarkAsDoneModalVisible = !state.isConfirmBulkMarkAsDoneModalVisible;

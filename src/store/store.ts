@@ -1,17 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import taskReducer from './task/taskSlice';
 import modalReducer from './modal/modalSlice';
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, PersistConfig } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-const persistConfig = {
-	key: 'root',
-	version: 1,
-	storage,
+const persistConfig: PersistConfig<any> = {
+  key: 'root',
+  version: 1,
+  storage,
+  blacklist: ['loading', 'selectedTasksIds'],
 };
 
 const persistedTaskReducer = persistReducer( persistConfig, taskReducer );
-
 
 export const store = configureStore( {
   reducer: {
