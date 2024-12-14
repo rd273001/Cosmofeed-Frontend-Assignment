@@ -2,15 +2,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ModalType } from '../../types/modal';
 
 const initialState = {
-  isViewTaskModalVisible: false,
-  isEditModalVisible: false,
-  isConfirmDeleteModalVisible: false,
   isAddTaskModalVisible: false,
+  isEditModalVisible: false,
+  isViewTaskModalVisible: false,
+  isConfirmDeleteModalVisible: false,
   isToggleTaskAsDoneModalVisible: false,
   isToggleTaskAsPendingModalVisible: false,
   isConfirmBulkMarkAsDoneModalVisible: false,
   isConfirmBulkMarkAsPendingModalVisible: false,
   isConfirmBulkDeleteModalVisible: false,
+  isConfirmCancelModalVisible: false,
+  isConfirmSaveModalVisible: false,
 };
 
 const taskSlice = createSlice( {
@@ -22,11 +24,11 @@ const taskSlice = createSlice( {
         case 'AddTask':
           state.isAddTaskModalVisible = !state.isAddTaskModalVisible;
           break;
-        case 'ViewTask':
-          state.isViewTaskModalVisible = !state.isViewTaskModalVisible;
-          break;
         case 'EditTask':
           state.isEditModalVisible = !state.isEditModalVisible;
+          break;
+        case 'ViewTask':
+          state.isViewTaskModalVisible = !state.isViewTaskModalVisible;
           break;
         case 'ConfirmDelete':
           state.isConfirmDeleteModalVisible = !state.isConfirmDeleteModalVisible;
@@ -45,6 +47,12 @@ const taskSlice = createSlice( {
           break;
         case 'ConfirmBulkDelete':
           state.isConfirmBulkDeleteModalVisible = !state.isConfirmBulkDeleteModalVisible;
+          break;
+        case 'ConfirmCancel':
+          state.isConfirmCancelModalVisible = !state.isConfirmCancelModalVisible;
+          break;
+        case 'ConfirmSave':
+          state.isConfirmSaveModalVisible = !state.isConfirmSaveModalVisible;
           break;
         default:
           return state;

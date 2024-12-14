@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
-import { Task, TaskPriority } from '../types/task';
+import React, { ChangeEvent, useState } from 'react';
+import { Task } from '../types/task';
 import { PRIORITY_OPTIONS } from '../config/taskConfig';
 import Modal from './Modal';
 import { ModalType } from '../types/modal';
 import useModalVisibilityHandlers from '../hooks/useModalVisibilityHanlders';
 import useTaskActionHandlers from '../hooks/useTaskActionHandlers';
+import useTrackFormChanges from '../hooks/useTrackFormChanges';
+import ConfirmBeforeActionAlert from './ConfirmBeforeActionAlert';
 
-interface AddTaskFormProps {
-  modalType: ModalType;
-  onSave?: ( task: Omit<Task, 'id' | 'currentState' | 'createdAt'> | Task ) => void;
-  initialTask?: Task;
-}
 
 // Render input or plain text based on read-only mode
 const renderInput = ( type: 'input' | 'textarea', props: any ) => {
@@ -19,24 +16,23 @@ const renderInput = ( type: 'input' | 'textarea', props: any ) => {
     <input
       type='text'
     className='w-full border-b-2 p-0.5'
-      { ...props }
+    { ...props }
     />
   ) : (
     <textarea
-      className='w-full border-2 rounded p-1 focus:outline-purple-400'
-      rows={ 4 }
-      { ...props }
+    className='w-full border-2 rounded p-1 focus:outline-purple-400'
+    rows={ 4 }
+    { ...props }
     />
   );
 };
 
 // Render select or plain text based on read-only mode
-const renderSelect = ( value: string, options: string[], setPriority: ( priority: TaskPriority ) => void, props: any ) => {
+const renderSelect = ( value: string, options: string[], props: any ) => {
 
   return (
     <select
-      value={ value }
-      onChange={ ( e ) => setPriority( e.target.value as TaskPriority ) }
+    value={ value }
       className='border-2 p-1.5 rounded focus-within:border-purple-400 outline-none'
       { ...props }
     >
@@ -49,60 +45,85 @@ const renderSelect = ( value: string, options: string[], setPriority: ( priority
   );
 };
 
-const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, initialTask } ) => {
-  const [title, setTitle] = useState( initialTask?.title ?? '' );
-  const [description, setDescription] = useState( initialTask?.description ?? '' );
-  const [priority, setPriority] = useState( initialTask?.priority ?? 'None' );
-  const [dueDate, setDueDate] = useState(
-    initialTask?.dueDate
-      ? new Date( initialTask.dueDate ).toISOString().split( 'T' )[0]
-      : ''
-  );
+interface AddTaskFormProps {
+  modalType: ModalType;
+  initialTask?: Task;
+}
 
-  const { handleToggleModalVisibility } = useModalVisibilityHandlers();
+const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, initialTask } ) => {
+
+  // Initial task data with default or initial values
+  const initialTaskData: Omit<Task, 'id' | 'currentState' | 'createdAt'> = {
+    title: initialTask?.title ?? '',
+    description: initialTask?.description ?? '',
+    priority: initialTask?.priority ?? 'None',
+    dueDate: initialTask?.dueDate ? new Date( initialTask.dueDate ).toISOString().split( 'T' )[0] : '',
+  };
+  const [taskData, setTaskData] = useState<Task>( initialTaskData as Task );
+  const { handleToggleModalVisibility, isConfirmCancelModalVisible, isConfirmSaveModalVisible } = useModalVisibilityHandlers();
   const { handleUpdateTask, handleAddTask } = useTaskActionHandlers();
 
-  const handleSave = () => {
-    if ( modalType === 'ViewTask' ) return;   // return if in READ-ONLY mode
+  const { title, description, priority, dueDate } = taskData;
 
+  // Check if modal type is View/Read Only type
+  const isReadOnly = modalType === 'ViewTask';
+
+  const handleSave = () => {
+    if ( isReadOnly ) return;   // return if in READ-ONLY mode
     if ( title.trim().length < 10 || title.trim().length > 140 ) {
       alert( 'Title must be between 10 and 140 characters' );
       return;
     }
-
     if ( description.trim().length < 10 || description.trim().length > 500 ) {
       alert( 'Description must be between 10 and 500 characters' );
       return;
     }
 
-    const taskData = {
+    const taskToSave = {
       ...initialTask,
       title: title.trim(),
       description: description.trim(),
       priority,
       dueDate: dueDate ? new Date( dueDate ).getTime() : initialTask?.dueDate,
     };
+    if ( initialTask ) handleUpdateTask( taskToSave as Task );  // update existing task
+    else handleAddTask( taskToSave );   // update or add task
+  };
 
-    if ( initialTask ) handleUpdateTask( taskData as Task );  // update existing task
+  const { hasChanges, trackChanges, handleClose, handleConfirmSave } = useTrackFormChanges<Task>( {
+    initialValues: initialTaskData,
+    handleConfirmSave: handleSave,
+    modalType
+  } );
 
-    else handleAddTask( taskData );   // update or add task
+  const handleTaskDataChange = ( e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof Task ) => {
+    const newValue = e.target.value;
+    setTaskData( prev => ( { ...prev, [field]: newValue } ) );
+    // Track changes to detect form modification
+    trackChanges( field, newValue );
+  };
+
+  const onDiscard = () => {
+    // Close both modal when Discard is clicked when you have changes
+    handleToggleModalVisibility( 'ConfirmCancel' );
+    handleToggleModalVisibility( modalType );
   };
 
   return (
-    <Modal onClose={ () => handleToggleModalVisibility( modalType ) }>
+    <Modal onClose={ handleClose }>
       <div className='md:p-4 sm:p-2'>
         <h2 className='text-xl mb-6 font-medium'>
-          { modalType === 'ViewTask' ? 'Task Details' : ( initialTask ? 'Edit Task' : 'Add New Task' ) }
+          { isReadOnly ? 'Task Details' : ( initialTask ? 'Edit Task' : 'Add New Task' ) }
         </h2>
 
         <div className='flex items-center justify-center mb-4'>
           <label className='block mr-4'>Summary: </label>
           { renderInput( 'input', {
             value: title,
-            onChange: ( e: React.ChangeEvent<HTMLInputElement> ) => setTitle( e.target.value ),
+            onChange: ( e: ChangeEvent<HTMLInputElement> ) => handleTaskDataChange( e, 'title' ),
             placeholder: 'Enter task summary',
             maxLength: 140,
-            disabled: modalType === 'ViewTask' ? true : false
+            disabled: isReadOnly,
           } ) }
         </div>
 
@@ -110,24 +131,25 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, initialTask } ) =
           <label className='block mb-2'>Description:</label>
           { renderInput( 'textarea', {
             value: description,
-            onChange: ( e: React.ChangeEvent<HTMLTextAreaElement> ) => setDescription( e.target.value ),
+            onChange: ( e: ChangeEvent<HTMLTextAreaElement> ) => handleTaskDataChange( e, 'description' ),
             placeholder: 'Enter task description',
             maxLength: 500,
-            disabled: modalType === 'ViewTask' ? true : false
+            disabled: isReadOnly
           } ) }
         </div>
 
         <div className='flex justify-between gap-8 mb-4'>
           <div className='flex items-center'>
             <label className='block mr-2'>Priority: </label>
-            { renderSelect( priority, PRIORITY_OPTIONS, setPriority, {
-              disabled: modalType === 'ViewTask' ? true : false
+            { renderSelect( priority, PRIORITY_OPTIONS, {
+              onChange: ( e: ChangeEvent<HTMLInputElement> ) => handleTaskDataChange( e, 'priority' ),
+              disabled: isReadOnly
             } ) }
           </div>
 
           <div className='flex items-center'>
             <label className='block mr-2'>Due date: </label>
-            { modalType === 'ViewTask' ? (
+            { isReadOnly ? (
               <div className='border p-1 bg-gray-100 text-gray-700'>
                 { dueDate
                   ? new Date( dueDate ).toLocaleDateString()
@@ -137,7 +159,7 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, initialTask } ) =
               <input
                 type='date'
                 value={ dueDate }
-                onChange={ ( e ) => setDueDate( e.target.value ) }
+                onChange={ ( e ) => handleTaskDataChange( e, 'dueDate' ) }
                 className='border-2 p-1 rounded focus-within:border-purple-400'
               />
             ) }
@@ -146,7 +168,7 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, initialTask } ) =
         </div>
 
         {
-          modalType === 'ViewTask' && (
+          isReadOnly && (
             <div className='flex justify-between gap-8 mb-4'>
               <div className='flex items-center'>
                 <label className='block mr-2'>Current state: </label>
@@ -163,21 +185,39 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ( { modalType, initialTask } ) =
 
         <div className='flex justify-end gap-4 mt-8'>
           <button
-            onClick={ () => handleToggleModalVisibility( modalType ) }
+            onClick={ handleClose }
             className='px-4 py-2 text-black bg-gray-200 hover:bg-gray-300 rounded-lg min-w-fit w-[28%] max-w-36'
           >
-            { modalType === 'ViewTask' ? 'Close' : 'Cancel' }
+            { isReadOnly ? 'Close' : 'Cancel' }
           </button>
           { modalType !== 'ViewTask' && (
             <button
-              onClick={ handleSave }
-              className='px-4 py-2 bg-purple-500 text-white hover:bg-purple-600 rounded-lg min-w-fit w-[28%] max-w-36'
+              onClick={ () => handleToggleModalVisibility('ConfirmSave') }
+              disabled={ !hasChanges }
+              className={ `px-4 py-2 text-white rounded-lg min-w-fit w-[28%] max-w-36 bg-purple-500 enabled:hover:bg-purple-600` }
             >
               Save
             </button>
           ) }
         </div>
       </div>
+
+      {/* Alert for Discarding changes(if any) */}
+      { isConfirmCancelModalVisible && (
+        <ConfirmBeforeActionAlert
+          actionType='cancel'
+          onConfirm={ onDiscard }
+          onClose={ () => handleToggleModalVisibility( 'ConfirmCancel' ) }
+        />
+      ) }
+
+      { isConfirmSaveModalVisible && (
+        <ConfirmBeforeActionAlert
+          actionType='save'
+          onConfirm={ handleConfirmSave }
+          onClose={ () => handleToggleModalVisibility( 'ConfirmSave' ) }
+        />
+      ) }
     </Modal>
   );
 };

@@ -16,7 +16,9 @@ const useModalVisibilityHandlers = () => {
     isToggleTaskAsPendingModalVisible,
     isConfirmBulkMarkAsDoneModalVisible,
     isConfirmBulkMarkAsPendingModalVisible,
-    isConfirmBulkDeleteModalVisible
+    isConfirmBulkDeleteModalVisible,
+    isConfirmCancelModalVisible,
+    isConfirmSaveModalVisible,
   } = useSelector( ( state: RootState ) => state.modals );
 
   const handleToggleModalVisibility = useCallback( ( modalName: ModalType ) => {
@@ -33,6 +35,8 @@ const useModalVisibilityHandlers = () => {
     isConfirmBulkMarkAsDoneModalVisible,
     isConfirmBulkMarkAsPendingModalVisible,
     isConfirmBulkDeleteModalVisible,
+    isConfirmCancelModalVisible,
+    isConfirmSaveModalVisible,
     handleToggleModalVisibility,
   };
 };

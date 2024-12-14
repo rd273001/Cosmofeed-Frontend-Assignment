@@ -19,7 +19,7 @@ const GroupByDropdown: React.FC = () => {
     <select
       defaultValue={ groupBy ? GROUP_BY_DROPDOWN_VALUES[groupBy] : 'None' }
       onChange={ ( e ) => handleSelectGroupBy( e.target.value ) }
-      className='border-2 rounded-md p-2 w-full md:w-1/3 lg:w-1/4'
+      className='border-2 rounded-md p-1.5 md:p-2 w-full md:w-1/3 lg:w-1/4'
     >
       <option disabled>Group By</option>
       <option value='None'>None</option>

@@ -60,10 +60,10 @@ const TaskList: React.FC<TaskListProps> = ( { tasks } ) => {
   const { selectedTasksIds, handleBulkMarkAsDone, handleBulkMarkAsPending, handleBulkDelete } = useBulkTaskActions();
 
   return (
-    <div>
+    <div className='flex overflow-x-auto'>
       { selectedTasksIds.length > 0 && (
-        <div className='mb-4 flex items-center space-x-2'>
-          <span>{ selectedTasksIds.length } tasks selected</span>
+        <div className='mb-4 flex items-center gap-4 text-xs sm:text-base'>
+          <span className='text-sm sm:text-base'>{ selectedTasksIds.length } tasks selected</span>
           <button
             onClick={ () => handleToggleModalVisibility( 'ConfirmBulkMarkAsDone' ) }
             className='bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600'

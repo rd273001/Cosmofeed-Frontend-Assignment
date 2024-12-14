@@ -5,11 +5,11 @@ import GroupByDropdown from './GroupByDropdown';
 
 const Header: React.FC = () => {
   return (
-    <header className='p-4 shadow-lg shadow-black/20 bg-white'>
-      <div className='flex flex-col md:flex-row justify-between md:items-center mx-auto gap-4 max-w-screen-xl'>
+    <header className='p-3 md:p-4 shadow-lg shadow-black/20 bg-white text-sm sm:text-base'>
+      <div className='flex flex-col md:flex-row justify-between md:items-center mx-auto gap-3 max-w-screen-xl'>
         <a href='/' className='flex items-center' aria-label='Homepage'>
-          <img src={ logo } alt='TODO logo' className='h-8 md:h-9 mr-2' />
-          <h1 className='text-2xl md:text-3xl font-bold'>TODO</h1>
+          <img src={ logo } alt='TODO logo' className='h-7 md:h-9 mr-2' />
+          <h1 className='text-xl md:text-2xl font-bold'>TODO</h1>
         </a>
 
         <SearchBar />

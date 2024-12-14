@@ -11,7 +11,7 @@ import { Task } from '../types/task';
 const Home: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'completed' | 'pending'>( 'all' );
 
-  const { tasks, handleAddTask, loading, groupBy } = useTaskActionHandlers();
+  const { tasks, loading, groupBy } = useTaskActionHandlers();
   const { isAddTaskModalVisible, handleToggleModalVisibility } = useModalVisibilityHandlers();
 
   const filteredTasks = useMemo( () => {
@@ -38,7 +38,7 @@ const Home: React.FC = () => {
   }, [tasks, activeTab, groupBy] );
 
   return (
-    <div className='container mx-auto flex flex-col flex-1 overflow-auto'>
+    <div className='container mx-auto flex flex-col flex-1 overflow-auto text-sm sm:text-base'>
       <div className='p-4 mb-6'>
 
         <TaskTabs activeTab={ activeTab } onTabChange={ setActiveTab } />
@@ -46,12 +46,12 @@ const Home: React.FC = () => {
 
         <button
           onClick={ () => handleToggleModalVisibility( 'AddTask' ) }
-          className='fixed bottom-[6%] right-[3.5%] text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-black/50 animate-[bounce_infinite_1.5s_ease-in-out] hover:animate-none bg-gradient-to-tr from-purple-800 to-blue-300 hover:opacity-75 active:scale-110'
+          className='fixed md:bottom-[6%] md:right-[3.5%] bottom-[5%] right-[6%] text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-black/50 animate-[bounce_infinite_1.5s_ease-in-out] hover:animate-none bg-gradient-to-tr from-violet-950 to-purple-500 hover:from-violet-800 hover:to-purple-400'
         >
           <PlusIcon />
         </button>
 
-        { isAddTaskModalVisible && <AddTaskForm modalType='AddTask' onSave={ handleAddTask } /> }
+        { isAddTaskModalVisible && <AddTaskForm modalType='AddTask' /> }
         { loading && <Spinner /> }
       </div>
     </div>

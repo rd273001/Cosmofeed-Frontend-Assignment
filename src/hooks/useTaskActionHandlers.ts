@@ -82,11 +82,13 @@ const useTaskActionHandlers = () => {
   const handleAddTask = useCallback( ( task: Omit<Task, 'id' | 'currentState' | 'createdAt'> ) => {
     dispatch( addTask( task ) );
     dispatch( toggleModalVisibility( 'AddTask' ) );
+    dispatch( toggleModalVisibility( 'ConfirmSave' ) );
   }, [dispatch] );
 
   const handleUpdateTask = useCallback( ( task: Task ) => {
     dispatch( updateTask( task ) );
     dispatch( toggleModalVisibility( 'EditTask' ) );
+    dispatch( toggleModalVisibility( 'ConfirmSave' ) );
   }, [dispatch] );
 
   const handleDeleteTask = useCallback( ( taskId: string ) => {

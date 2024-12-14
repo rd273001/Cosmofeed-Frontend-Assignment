@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 button {
-  @apply active:scale-110 text-white
+  @apply enabled:active:scale-110 text-white disabled:bg-opacity-50 disabled:cursor-not-allowed
 }
 
 input, select {

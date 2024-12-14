@@ -4,7 +4,7 @@ export interface Task {
   title: string;
   description: string;
   createdAt: number; // timestamp
-  dueDate?: number; // optional timestamp
+  dueDate?: string | number; // optional timestamp
   priority: TaskPriority;
 }
 

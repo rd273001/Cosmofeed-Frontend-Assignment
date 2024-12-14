@@ -6,4 +6,6 @@ export type ModalType = 'AddTask'
   | 'ToggleTaskAsPending'
   | 'ConfirmBulkMarkAsDone'
   | 'ConfirmBulkMarkAsPending'
-  | 'ConfirmBulkDelete';
+  | 'ConfirmBulkDelete'
+  | 'ConfirmCancel'
+  | 'ConfirmSave';
