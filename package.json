@@ -3,6 +3,19 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "keywords": [
+    "todo",
+    "todo-app",
+    "todo-list",
+    "react",
+    "redux",
+    "typescript",
+    "vite",
+    "tailwindcss",
+    "redux-toolkit",
+    "todo management",
+    "task management"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
